@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	「亚克力」主题 —— 乳白厚板, 反光更强(第六十二轮新增, 第六十三轮重做)。
+
+	════════════════════════════════════════════════════════════════════
+	【第六十三轮·为什么改】
+	════════════════════════════════════════════════════════════════════
+	上一版是 22% + 7% = 29% 的冷白, 而「玻璃」是 12% + 8% = 20% —— 两者只差 9 个百分点,
+	在明亮壁纸上**看起来是同一张卡**。用户第六十三轮的原话:
+	"主题切换还是不行, 一直在切换玻璃主题"。
+
+	本轮把"厚"这件事做实: 底色从 29% 提到 70%, 壁纸只剩一个模糊的影子;
+	顶部高光从 32% 提到 45%, 而且是**贯穿全高**的三段渐变(玻璃只有上半张才亮)。
+
+	配方:
+	  L0 + L0b  两层外阴影 12% + 12%  —— 紧贴卡片那一圈 24%, 最外圈 12%
+	  L1        乳白 #E9EFF7 @ 60%    —— 冷白, 压住壁纸
+	  L2        冷调加强 #DDE6F2 @ 10% —— 合计 70%
+	  L3        全高三段高光 6% -> 18% -> 45%
+	  L4 + L5   底部两层内阴影(最深 18% + 12%)
+	  L6        右侧内阴影 10%
+	  L7        1dp / 45% 白切边      —— 厚板的"面反光"靠这一圈收口
+
+	和「玻璃」的区别(这是唯一需要被看出来的东西):
+	  玻璃   = 20% 底, 光只在上沿一条窄带, 底部几乎不压暗 -> "薄薄一片"
+	  亚克力 = 70% 底, 从上到下都在亮, 底部压得很实       -> "一块有厚度的板材"
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!-- L0 外阴影·远: 铺满, 12% -->
+	<item>
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#1F000000" />
+		</shape>
+	</item>
+
+	<!-- L0b 外阴影·近: 再缩 1dp, 又叠 12% —— 紧贴卡片那一圈 24%, 最外圈 12% -->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#1F000000" />
+		</shape>
+	</item>
+
+	<!-- L1 亚克力底: 冷白 #E9EFF7 @ 60%。这是"厚"的主要来源 -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#99E9EFF7" />
+		</shape>
+	</item>
+
+	<!-- L2 冷调加强: #DDE6F2 @ 10%, 合计 70% -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#1ADDE6F2" />
+		</shape>
+	</item>
+
+	<!-- L3 宽幅高光: 全高三段 6% -> 18% -> 45%(angle=90 即"从下往上") -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="90"
+				android:centerColor="#30FFFFFF"
+				android:endColor="#73FFFFFF"
+				android:startColor="#0FFFFFFF"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L4 底部内阴影(第一层): 0 -> 8% -> 18% -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="270"
+				android:centerColor="#14000000"
+				android:endColor="#2E000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L5 底部内阴影(第二层): 只在下一半再压 12% -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="270"
+				android:centerColor="#00000000"
+				android:endColor="#1F000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L6 右侧内阴影: angle=0 从左往右, 10% —— "侧壁"比玻璃主题厚 -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="0"
+				android:centerColor="#00000000"
+				android:endColor="#1A000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L7 切边高光: 1dp / 45%。亚克力的"面反光"靠这一圈收口 -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<stroke
+				android:width="1dp"
+				android:color="#73FFFFFF" />
+		</shape>
+	</item>
+
+</layer-list>

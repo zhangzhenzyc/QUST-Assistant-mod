@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	【第六十五轮】"渲染失败"兜底卡。
+
+	Glance 的组合一抛异常, 小组件就**停在上一帧、再也不动** —— 用户看到的现象是
+	"主题点了没反应""第 11 节永远不出来", 而我们这边一条日志都没有(异常被自己吞掉了)。
+	所以这里给它一张能看见的脸: 组合失败时直接用一个纯 RemoteViews 把异常类型和消息写到卡上,
+	用户截个图就能把真正的原因带回来。
+
+	刻意做得极简: 纯白底 + 深红字, 不带主题 —— 它只在"连正常渲染都进不去"时出现。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#FFF7F7">
+
+	<TextView
+		android:id="@+id/term_error_text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:padding="12dp"
+		android:textColor="#B3261E"
+		android:textSize="11sp"
+		android:maxLines="6"
+		android:text="课表渲染失败" />
+</FrameLayout>

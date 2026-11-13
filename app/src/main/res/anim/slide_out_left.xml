@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 旧页面向左退出(只走 30%, 保留层次感) -->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="260"
+    android:fromXDelta="0"
+    android:toXDelta="-30%p"
+    android:interpolator="@android:anim/decelerate_interpolator" />

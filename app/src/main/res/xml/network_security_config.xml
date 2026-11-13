@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 【兼容学校升级】信任系统CA与用户安装的证书(学校升级后可能使用自签/私有CA,
+     用户可在系统里安装学校证书后正常访问); 明文放行保证校内 http 系统可用 -->
+<network-security-config>
+	<base-config cleartextTrafficPermitted="true">
+		<trust-anchors>
+			<certificates src="system" />
+			<certificates src="user" />
+		</trust-anchors>
+	</base-config>
+</network-security-config>

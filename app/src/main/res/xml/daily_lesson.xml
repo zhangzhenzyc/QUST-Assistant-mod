@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	【第三十七轮】当日课表小组件配置。
+
+	为"启动器里找不到小组件"做的兼容改动(前几轮):
+	1. 去掉 android:initialKeyguardLayout 与 widgetCategory 里的 keyguard:
+	   锁屏小部件从 Android 5.0 起已移除, 这两个属性是历史遗留。部分国产 ROM 的
+	   "小部件"面板在预加载初始布局时, 会因为 keyguard 相关布局不合法而整条跳过该条目,
+	   表现就是"列表里根本没有这个小组件"。
+	2. 补 android:description: Android 12+ 的面板用它显示说明文字。
+	3. 补 targetCellWidth/Height(Android 12+): 让面板按 4x4 格子给出合适的预览尺寸。
+	4. 【第三十轮】默认高度由 3 格提到 4 格: 用户要求"默认大小以学期课表课程数最多的日期
+	   的课程数为准, 要让课程全部显示"; 4 格 ≈ 250dp, 正好放下"表头 + 4 节";
+	   课更多时由 DailyLesson.applySizeHint 把真实需要的高度写给启动器当最小高度。
+
+	【第三十七轮·按要求】"删除每日课表和学期课表的小组件缩放功能":
+	  · android:resizeMode 改成 **none** —— 长按不再出现缩放边框, 尺寸固定;
+	  · minResizeWidth / minResizeHeight 一并删掉。它俩只在可缩放时才有意义
+	    (上一轮把下限拉到和默认一样大, 仍然会露出缩放手柄, 用户要的是**完全没有**)。
+	尺寸仍然由 minWidth/minHeight(以及 applySizeHint 写入的最小高度)决定,
+	只是用户不能再拖动改变它。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/text_day_lesson"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minHeight="250dp"
+    android:minWidth="250dp"
+    android:previewImage="@drawable/daily_preview"
+    android:resizeMode="none"
+    android:targetCellWidth="4"
+    android:targetCellHeight="4"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen" />

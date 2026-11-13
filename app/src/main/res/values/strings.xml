@@ -1,0 +1,36 @@
+<resources>
+	<string name="app_name">青科助手</string>
+	<string name="text_welcome">欢迎使用</string>
+	<string name="text_skip">跳过</string>
+	<string name="text_ok">确定</string>
+	<string name="text_cancel">取消</string>
+	<string name="text_term">学期</string>
+	<string name="text_query">查询</string>
+	<string name="text_delete">删除</string>
+	<string name="text_week">第 %s 周</string>
+	<string name="text_query_term_start_time">当前开学日期: %s\n查询到的开学日期: %s</string>
+	<string name="text_save_lesson_table">保存课表</string>
+	<string name="text_login">登录</string>
+	<string name="text_term_lesson">学期课表</string>
+	<string name="text_drink_code">饮水码</string>
+	<string name="widget_drink_not_login">尚未登录饮水账号</string>
+	<string name="widget_drink_click_login">点这里登录后显示饮水码</string>
+	<string name="text_day_lesson">今日课表</string>
+	<!-- 【第七十轮·六】小组件在系统「添加小部件」面板里的**排序名**。
+	     两次改 AndroidManifest 的 receiver 顺序都不影响面板顺序(21:40 与 23:32 两张截图
+	     在 manifest 顺序相反的两版上显示的仍是 今日→学期→饮水), 说明 MIUI 是按**名称**排的
+	     (今 U+4ECA < 学 U+5B66 < 饮 U+996E)。要交换"饮水码"和"今日课表"的位置, 只能改名字:
+	     带圈数字在 Unicode 里排在所有汉字之前, 且 ①②③ 自身有序, 于是面板顺序变成
+	     饮水码 → 学期课表 → 今日课表。改回原样只需把下面三条的序号去掉。 -->
+	<!-- 【第七十轮·七·按要求】去掉"① ② ③"序号。
+	     上一版给三个小组件加了圈号想让启动器面板换位, 13:47 截图实测**顺序一点没变** ——
+	     说明 MIUI 排序时会把开头的符号/数字忽略掉, 圈号完全无效, 只是多了一个难看的前缀。
+	     现在恢复成纯名称。 -->
+	<!-- 【第七十轮·九·按要求】「学期课表」→「本周课表」(用户原话: 把这里面的学期课表改为本周课表)。
+	     只改**桌面小部件面板**里的名字, 软件内那一页的标题仍然是「学期课表」。 -->
+	<string name="widget_label_drink">饮水码</string>
+	<string name="widget_label_term">本周课表</string>
+	<string name="widget_label_day">今日课表</string>
+	<string name="text_checking_version">正在检查更新</string>
+	<string name="disclaimer_text">免责声明\n1. 本软件（青科助手）为个人非商业性质的学习辅助工具，旨在帮助青岛科技大学在校生更便捷地查询课表、成绩等校内公开信息。\n2. 本软件不替代学校官方教务系统或任何官方平台，所有数据均来自您本人账号在官方渠道可获取的信息，请以学校官方发布为准。\n3. 您的账号与密码仅保存在您本机设备中，软件不会将您的账号、密码等个人敏感信息上传至任何第三方服务器。\n4. 使用本软件需您自行输入学号与密码完成登录，请妥善保管个人账号，因账号泄露或借与他人使用造成的损失由本人承担。\n5. 因学校教务系统、网络环境或目标网站内容动态变化，本软件无法保证所获取信息的绝对准确与完整，使用产生的风险由您自行承担。\n6. 本软件提供的调休/放假安排导入功能基于官网通知或您手动设置，仅供参考，最终以学校官方通知为准。\n7. 对于因不可抗力、第三方因素或您自身操作不当导致的任何损失，本软件开发者不承担责任。\n8. 继续使用本软件即表示您已阅读、理解并同意上述免责声明及《隐私政策》的全部内容。</string>
+</resources>

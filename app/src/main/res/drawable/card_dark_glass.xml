@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	「深色玻璃」主题 —— 浅色玻璃的夜间配套版(第六十二轮新增)。
+
+	验收标准(用户给的)与实现逐条对应:
+	  ① 深色半透蒙版, 底色 #121218
+	     -> L1 #8A121218 = 54%(第六十三轮从 18% 提上来, 理由见下面 L1 的注释);
+	        L2 再叠 6% 冷调 #0E1220, 合计 60%。
+	        底色仍是 #121218, 只是"半透"的半从 82% 变成 40% —— 亮壁纸上必须压到这个量级,
+	        白字才真的看得清, 也才和「玻璃」一眼分得开。
+	  ② 顶部柔和浅白高光带 18%~28%, 不做刺眼强反光
+	     -> L3 上沿 #38FFFFFF = 22%, 从卡片中线平滑升到上沿 —— 是**渐变**, 没有一条亮线。
+	  ③ 底部 + 右侧内阴影用更深的暗色, 分层软外阴影(黑 10%~18%)
+	     -> L4/L5 底部两层(最深 12% + 10% = 22%), L6 右侧 8%;
+	        L0 外阴影铺满、卡片本体缩 1dp, 让它在右边和下边露出来(黑 12%)。
+	  ④ 主文字纯白, 辅助文字浅灰 #D1D1D6
+	     -> 不在这个文件里, 见 WidgetStyle.text / aux(theme.dark = true 时自动切换)。
+	  ⑤ 课程色块半透深色、饱和度偏低
+	     -> 见 WidgetGlass.block 的 dark 分支。
+	  禁止项: 高饱和亮色 / 过重蒙版遮住壁纸 / 生硬白线边框
+	     -> 蒙版总量 24%, 壁纸仍能透上来; 边线只有 1dp / 12%, 不是"白线边框"。
+
+	配色方向上的一个取舍:
+	  18% 的暗底挡不住太亮的壁纸, 白字压在纯白壁纸上会看不清。这是"要透出壁纸"的必然代价,
+	  用户想要"任何壁纸都清晰"时应该选「纯色」或「哑光」——两套主题各管一段, 不互相迁就。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!-- L0 外阴影: 铺满, 只有卡片本体够不到的右边/下边那 1dp 能看见它 -->
+	<item>
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#1F000000" />
+		</shape>
+	</item>
+
+	<!--
+		L1 深色基底: #121218 @ 54%。
+
+		【第六十三轮·修正】上一版是 18%(#2E)。在深色壁纸上没问题, 但用户那张壁纸很亮 ——
+		亮底上 18% 的黑只能压到"浅灰", 白字压上去照样吃力, 而且和「玻璃」看起来是同一张卡。
+		现在提到 54%: 亮壁纸被压到中深灰, 白字的对比度 ≈ 7:1(过 AA), 暗壁纸上也不至于死黑。
+		仍然"半透"—— 壁纸还有 46% 透得上来, 只是不再是"清亮"的那种透。
+	-->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#8A121218" />
+		</shape>
+	</item>
+
+	<!-- L2 冷调修正: #0E1220 @ 6%, 防止深灰在暖壁纸上发褐 -->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#0F0E1220" />
+		</shape>
+	</item>
+
+	<!-- L3 顶部高光带: 上沿 22% 白, 到中线平滑落回 0(angle=90 即"从下往上") -->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="90"
+				android:centerColor="#00000000"
+				android:endColor="#38FFFFFF"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L4 底部内阴影(第一层): 贯穿全高 0 -> 4% -> 12% -->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="270"
+				android:centerColor="#0A000000"
+				android:endColor="#1F000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L5 底部内阴影(第二层): 只在下一半再压 10% -->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="270"
+				android:centerColor="#00000000"
+				android:endColor="#1A000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L6 右侧内阴影: angle=0 从左往右, 8% -->
+	<item
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="0"
+				android:centerColor="#00000000"
+				android:endColor="#14000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- 【第八十四轮·按用户要求】L7 描边(1.5dp/35% 白)删除: "所有主题不要加描边了"。
+	     本体各层直接铺到内缩边界。 -->
+
+</layer-list>

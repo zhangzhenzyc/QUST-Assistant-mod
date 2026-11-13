@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	饮水码小组件布局(纯 RemoteViews)
+
+	【第四十七轮】弃用 Glance: 日志实锤 Glance 的进程内 update 与广播 onUpdate 在 MIUI 上
+	"刷新指令发出但渲染不落地"(4 次刷新只对应 1 次渲染, 且渲染迟到 19 秒)。
+	纯 RemoteViews 的 updateAppWidget 是最底层、无任何中间层的调用 —— 发了就生效。
+
+	════════════════════════════════════════════════════════════════════
+	【第六十五轮·按要求】"条形码区域要是白色保持不变, 周围的区域也要同步更换主题"
+	════════════════════════════════════════════════════════════════════
+	层级(从下往上):
+	  ① 主题卡底(ImageView, 六套主题共用)                        —— 铺满整个小组件
+	  ② 码盘外圈(16dp padding)                                   —— **这 16dp 就是"看得见主题"的地方**
+	  ③ widget_drink_barcode(白圆角码盘 + 透明底黑条 + 10dp 内边距)
+	  ④ 未登录时的两行提示(居中, 跟随主题文字色)
+
+	三处数值都是为"一眼看出主题"定的:
+	  · 外圈 12dp -> **16dp**: 上一版晒出来的截图上, 12dp 的环太窄, 换主题时几乎看不出来;
+	  · 码盘圆角 12dp -> **14dp**, 内边距 8dp -> **10dp**: 码盘本身更"厚"一点, 白色更成块;
+	  · 码盘底色仍是**纯白 #FFFFFF**、条仍是**纯黑** —— 扫码枪只认高对比, 这一条不让步。
+
+	所以换主题时: 码盘那块白色**一点不动**, 它外面那一圈(左/右/上/下各 16dp, 加上四个圆角)
+	跟着卡片变成玻璃 / 纯色 / 深色玻璃 / 无边框 / 哑光 / 亚克力。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/widget_drink_root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<!-- ① 主题卡底(代码按当前主题铺 card_background / card_solid / ...) -->
+	<ImageView
+		android:id="@+id/widget_drink_glass"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:scaleType="fitXY"
+		android:contentDescription="@null" />
+
+	<!-- ② 码盘外圈留白: 【第六十七轮·按要求】"缩小饮水码周围的主题区域…同时扩大饮水码"
+	     上一版是 16dp —— 在 1 格高(≈50dp)的卡上, 上下各吃掉 16dp, 条码只剩 18dp 高,
+	     又窄又糊。现在收到 8dp: 仍然是"一圈看得见的主题", 但条码能长到 ~34dp。
+	     【第七十轮·按要求】"删除饮水码的主题效果, 只保留条形码, 将条形码加宽" ——
+	     主题层已在代码里隐藏, 外圈留白从 8dp 收到 4dp, 条码再宽一圈。
+
+	     【第七十轮·十九·修"饮水码 4 个角多出来一点点"】外圈 4dp -> **0dp**:
+	     Android 12 起系统会给小组件垫一层**自己的**圆角卡底(和桌面统一半径), 我们的白盘
+	     缩在 4dp 边距里, 四个角上那 4dp 就露出系统卡底的白 —— 盘的 14dp 圆角一让位,
+	     角上便多出一小块"别的白"(用户截的就是这个)。现在码盘直接铺满整卡、圆角提到
+	     16dp 与系统一致: 系统卡底被完全盖住, 四角干净。 -->
+	<FrameLayout
+		android:id="@+id/widget_drink_plate_wrap"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:padding="0dp">
+
+		<!-- ③ 条码: 白色圆角码盘 + 透明底黑条(位图不再自带白底)
+		     【第七十轮】内边距 8dp -> 5dp: 白盘内再让出更少的空白, 条码更大。 -->
+		<ImageView
+			android:id="@+id/widget_drink_barcode"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:background="@drawable/bg_drink_plate"
+			android:padding="5dp"
+			android:scaleType="fitXY"
+			android:contentDescription="@null" />
+	</FrameLayout>
+
+	<!-- ④ 未登录提示 -->
+	<LinearLayout
+		android:id="@+id/widget_drink_login_box"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		android:gravity="center"
+		android:visibility="gone">
+
+		<TextView
+			android:id="@+id/widget_drink_hint_title"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/widget_drink_not_login"
+			android:textColor="@color/widget_text_primary"
+			android:textSize="14sp"
+			android:maxLines="1" />
+
+		<TextView
+			android:id="@+id/widget_drink_hint_sub"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/widget_drink_click_login"
+			android:textColor="@color/widget_text_secondary"
+			android:textSize="11sp"
+			android:maxLines="1" />
+	</LinearLayout>
+</FrameLayout>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 【第七十三轮】座位预约: 一个人坐在椅子上(人改为蓝色), 前面有一张桌子 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+	android:width="24dp"
+	android:height="24dp"
+	android:viewportWidth="24"
+	android:viewportHeight="24">
+	<!-- 桌子(右侧) -->
+	<path
+		android:strokeColor="#8D6E63"
+		android:strokeWidth="2"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M11.6,10.8 H21.6" />
+	<path
+		android:strokeColor="#8D6E63"
+		android:strokeWidth="1.8"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M19.8,11.0 V21.0" />
+	<!-- 椅子: 靠背 + 坐面 + 两条腿 -->
+	<path
+		android:strokeColor="#A1887F"
+		android:strokeWidth="2"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M3.6,8.0 V14.0" />
+	<path
+		android:strokeColor="#A1887F"
+		android:strokeWidth="2.2"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M3.6,14.0 H10.2" />
+	<path
+		android:strokeColor="#A1887F"
+		android:strokeWidth="1.8"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M5.0,14.6 V21.0 M9.4,14.6 V21.0" />
+	<!-- 坐着的人: 头 + 身体 + 大腿 + 小腿 -->
+	<path
+		android:fillColor="#2196F3"
+		android:pathData="M7.0,3.6 A2.2,2.2 0 1 0 7.0,8.0 A2.2,2.2 0 1 0 7.0,3.6 Z" />
+	<path
+		android:fillColor="#2196F3"
+		android:pathData="M7.0,8.4 C5.6,8.4 4.8,9.4 4.8,10.8 V13.8 H9.2 V10.8 C9.2,9.4 8.4,8.4 7.0,8.4 Z" />
+	<path
+		android:strokeColor="#2196F3"
+		android:strokeWidth="2.6"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M6.6,13.2 H11.2" />
+	<path
+		android:strokeColor="#2196F3"
+		android:strokeWidth="2.4"
+		android:strokeLineCap="round"
+		android:fillColor="#00000000"
+		android:pathData="M11.2,13.4 V20.6" />
+</vector>

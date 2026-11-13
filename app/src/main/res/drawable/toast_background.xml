@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="20dp" />
+    <!-- 【第四十二轮】按要求: 半透明灰色 -->
+    <solid android:color="#B3808080" />
+</shape>

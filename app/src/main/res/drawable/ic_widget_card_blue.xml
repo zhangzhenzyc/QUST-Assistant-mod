@@ -1,0 +1,35 @@
+<!--
+	「小组件」功能的图标: 蓝色圆角卡片 + 上方细白条 + 下方全宽白块。
+
+	用户原话(第七十轮):
+	  · "小组件图标的方块长度改成和下面的矩形一样长, 并且他们两个互换一下位置";
+	  · (第六十八轮)底色统一 #6EC6FF, 效果参考系统『小部件』图标。
+
+	对照旧版做的改动:
+	  ① 互换 —— 细长条搬到上面、厚块搬到下面(原版是上厚块、下细条);
+	  ② 拉通 —— 两个元素左右宽度一致(左缘 x=5.6 / 右缘约 x=19.5), 都是"几乎全宽";
+	  ③ 底色不变, 仍是整卡同一蓝, 白色元素同风格圆角。
+
+	为什么仍不用渐变/描边: minSdk 21(渐变要 API 24); 饱和蓝底 + 白色元素对比已经足够。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+	android:width="24dp"
+	android:height="24dp"
+	android:viewportWidth="24"
+	android:viewportHeight="24">
+
+	<!-- 卡身(整卡同一色, 不再有浅色卡头) -->
+	<path
+		android:fillColor="#6EC6FF"
+		android:pathData="M4,3h16a3,3 0 0 1 3,3v12a3,3 0 0 1 -3,3H4a3,3 0 0 1 -3,-3V6a3,3 0 0 1 3,-3z" />
+
+	<!-- 上方细长条(与下方白块同宽, 胶囊形) -->
+	<path
+		android:fillColor="#FFFFFF"
+		android:pathData="M5.6,7h13a0.9,0.9 0 0 1 0,1.8h-13a0.9,0.9 0 0 1 0,-1.8z" />
+
+	<!-- 下方全宽厚块(与上方细条同宽, 圆角矩形) -->
+	<path
+		android:fillColor="#FFFFFF"
+		android:pathData="M5.6,11.4h13a1,1 0 0 1 1,1v3.2a1,1 0 0 1 -1,1H5.6a1,1 0 0 1 -1,-1v-3.2a1,1 0 0 1 1,-1z" />
+</vector>

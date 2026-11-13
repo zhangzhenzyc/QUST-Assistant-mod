@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	「磨砂玻璃」主题的卡片底(第六十七轮·按参考实拍图重做)。
+
+	════════════════════════════════════════════════════════════════════
+	用户这一轮给的验收标准(逐条对应到下面某一层)
+	════════════════════════════════════════════════════════════════════
+	  ① 雾面磨砂玻璃质感, 底层壁纸**高强度模糊**, 只保留明暗/色块/光斑走向
+	  ② 基底带朦胧透光属性, **不是实心底色**
+	  ③ 卡片顶部一条**纤细、柔和、边界羽化**的窄高光
+	  ④ 底部**柔和暗调内阴影**塑造板材厚度
+	  ⑤ 边缘干净 + **弥散柔和外阴影**悬浮
+	  ⑥ 整体温润通透有半透空气感, **不厚重发闷**
+
+	════════════════════════════════════════════════════════════════════
+	关于 ①「高强度模糊」—— 这一层为什么做不到, 以及为什么没有再做
+	════════════════════════════════════════════════════════════════════
+	layer-list 是矢量绘制, 它没有能力"模糊背后的东西"。真要糊壁纸, 只有一条路:
+	读 `WallpaperManager` 拿壁纸位图, 自己降采样糊一遍, 再当图片铺上去。
+
+	这条路**第三十九到五十一轮已经完整做过三个月, 然后被删掉了**, 原因是实测数据:
+	  · MIUI 把 `getBitmap / getDrawable / getWallpaperFile` 全部封死(第四十六轮日志里
+	    全是 SecurityException), 于是绝大多数用户看到的是兜底纯色底;
+	  · 生成的是**静态位图**, 壁纸换了、卡片挪了位置, 底下的画面已经变了而位图还是老的 ——
+	    用户第五十九轮明确禁止"静态截图模糊";
+	  · 每次几十毫秒 + 一块位图走 Binder, 渲染慢、内存抖。
+
+	所以 ① 这一轮落在 **②「半透」** 上: 卡是透的 —— 桌面开了模糊, 透上来的就是糊好的壁纸;
+	桌面没开, 透上来的是被 16% 雾面压住的清晰壁纸, 观感仍然是雾玻璃。
+	这是"不依赖 ROM 能力、也不可能失效"的那一半。
+
+	════════════════════════════════════════════════════════════════════
+	这一版相对上一版改了什么(对应 ③④⑤⑥)
+	════════════════════════════════════════════════════════════════════
+	· ③ 顶部高光: 上一版是 `gradientRadius=110dp` 的径向光 —— 110dp 差不多是 4 行课的高度,
+	  在 495dp 的卡上就是"上半张整体发亮", 用户说的"厚重发闷"有一半来自这里。
+	  这一版把半径收到 **30dp**, 峰值提到 22%: 亮区只剩上沿一条**窄带**; 而径向渐变的
+	  alpha 是连续曲面, 边界天然羽化, 不会出现一条硬亮线。
+	· ④ 底部内阴影: 两层(全高 0→3%→7%, 下半 0→5%), 只管"板材厚度", 不压暗中段文字区。
+	· ⑤ 外阴影: 上一版**没有**外阴影(卡片贴边), 所以"悬浮感"完全没有。这一版把卡片本体
+	  四边各内缩 3dp, 底下垫三层 5%/5%/6% 的黑 —— 由外向内逐级加深, 是一道**弥散**软影,
+	  不是一条硬边; 而且四边都缩(不只右边/下边), 悬浮才是四面均匀的。
+	· ⑥ 雾面总量 15% -> 16%, 但顶部不再大面积泛白, 所以整体反而更通透:
+	  壁纸仍有 84% 透上来, 温润感来自"透", 不来自"白"。
+
+	════════════════════════════════════════════════════════════════════
+	逐层(层序 = 绘制顺序, 后画的在上面)
+	════════════════════════════════════════════════════════════════════
+	  L0 外阴影·远   满幅                     5% 黑
+	  L1 外阴影·中   四边缩 1dp               5% 黑
+	  L2 外阴影·近   四边缩 2dp               6% 黑
+	  L3 白蒙版      四边缩 3dp              10% 白     ┐ 合计 16%
+	  L4 冷灰蒙版    四边缩 3dp               6% 冷灰   ┘ 稳定色温
+	  L5 顶部窄高光  四边缩 3dp, 径向 r=30dp  22% 白     ③
+	  L6 底部沉降    四边缩 3dp  0→3%→7%                ④
+	  L7 底部加强    四边缩 3dp  下半 0→5%               ④
+	  L8 右侧内阴影  四边缩 3dp  0→3%                    "侧壁"
+	  L9 内白切边    四边缩 3dp, 1dp / 12% 白            ⑤ 边缘干净
+
+	两条不能碰的红线(踩过):
+	  · 每一层都必须是"同一套内缩 + 同一个圆角"的 shape。layer-list 的层是独立矩形,
+	    不会被基底圆角裁掉 —— 少缩一层就会在四角戳出直角或一条彩边。
+	  · 不要再叠同心圆角描边: 三层就会出"年轮"。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<!-- L0 外阴影·远: 铺满整个视图。只在卡片本体够不到的那一圈露出来 -->
+	<item>
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#0D000000" />
+		</shape>
+	</item>
+
+	<!-- L1 外阴影·中: 四边缩 1dp -->
+	<item
+		android:left="1dp"
+		android:top="1dp"
+		android:right="1dp"
+		android:bottom="1dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#0D000000" />
+		</shape>
+	</item>
+
+	<!-- L2 外阴影·近: 四边缩 2dp。三层叠出"由外向内逐级加深"的弥散软影 -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#0F000000" />
+		</shape>
+	</item>
+
+	<!-- L3 白蒙版: 10%。只负责"雾", 不负责"白" -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#1AFFFFFF" />
+		</shape>
+	</item>
+
+	<!-- L4 冷灰蒙版: 6%。让暖色壁纸不至于整体泛黄 —— 合计 16%, 壁纸还有 84% 透上来 -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<solid android:color="#0FE8EDF4" />
+		</shape>
+	</item>
+
+	<!--
+		L4b/L4c/L4d 静态光斑: 三块**很大、很淡、边界完全羽化**的色团。
+		【第六十八轮·按要求】"磨砂玻璃尝试增加一下静态模糊, 最好能做到『透明简约』按钮
+		填充物那种模糊效果" —— 那个效果就是"一片看不出边界、只有一个大致颜色方向的柔光"。
+
+		做法: 三个径向渐变, 半径都在 150~170dp(≈3~4 行课), 峰值只有 7~9% 的 alpha,
+		圆心分别落在左上、右侧、下方 —— 于是整块卡片有"明暗走向"和"色块走向",
+		却没有任何一条边: 径向渐变的 alpha 从圆心连续衰减到 0。
+		这就是"被糊掉的壁纸"在人眼里的样子(只剩低频色块, 没有细节)。
+
+		为什么不会变成"彩色贴纸"(几何上就成立):
+		  · 峰值 7~9% 压在 16% 的白雾下面, 实际只让底色偏一点点色温;
+		  · 三块互相重叠, 重叠处也不会叠加成"看得见的形状" —— 半径远大于卡片尺寸,
+		    任意一块都覆盖了大半张卡, 没有"边缘"可言;
+		  · 和「深色玻璃」的黑底不同, 这里底色仍是透的, 光斑只是"加了一层空气感"。
+	-->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:centerX="16%"
+				android:centerY="24%"
+				android:endColor="#00F2C6D0"
+				android:gradientRadius="170dp"
+				android:startColor="#18F2C6D0"
+				android:type="radial" />
+		</shape>
+	</item>
+
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:centerX="86%"
+				android:centerY="42%"
+				android:endColor="#00BBD4EE"
+				android:gradientRadius="160dp"
+				android:startColor="#16BBD4EE"
+				android:type="radial" />
+		</shape>
+	</item>
+
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:centerX="54%"
+				android:centerY="94%"
+				android:endColor="#00F0DCA8"
+				android:gradientRadius="150dp"
+				android:startColor="#14F0DCA8"
+				android:type="radial" />
+		</shape>
+	</item>
+
+	<!--
+		L5 顶部窄高光: 径向渐变, 圆心在上沿中点, 半径 30dp, 峰值 22% 白。
+		  · 半径 30dp ≈ 0.7 行课的高度 —— 这就是"纤细": 亮区只占上沿一条窄带;
+		  · 径向渐变的 alpha 连续衰减, 没有直线边界 —— 这就是"边界羽化";
+		  · 四角和中下部一点也不亮, 所以不会"上半张整体泛白"(③)。
+	-->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:centerX="50%"
+				android:centerY="0%"
+				android:endColor="#00FFFFFF"
+				android:gradientRadius="30dp"
+				android:startColor="#38FFFFFF"
+				android:type="radial" />
+		</shape>
+	</item>
+
+	<!-- L6 底部沉降(第一层): 贯穿全高的极缓梯度 0 -> 3% -> 7%, 让板"下部略沉" -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="270"
+				android:centerColor="#08000000"
+				android:endColor="#12000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L7 底部加强(第二层): 只在下一半再压 5%, 贴着下沿做出"板材厚度"(④) -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="270"
+				android:centerColor="#00000000"
+				android:endColor="#0D000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L8 右侧内阴影: angle=0 是"从左往右", endColor 落在右沿。3% —— 有了它才有"侧壁" -->
+	<item
+		android:left="2dp"
+		android:top="2dp"
+		android:right="2dp"
+		android:bottom="2dp">
+		<shape>
+			<corners android:radius="@dimen/widget_corner_radius" />
+			<gradient
+				android:angle="0"
+				android:centerColor="#00000000"
+				android:endColor="#08000000"
+				android:startColor="#00000000"
+				android:type="linear" />
+		</shape>
+	</item>
+
+	<!-- L9 内白切边: 【第七十轮·按要求】"两种玻璃效果你添加一下像这个图中的按钮一样的描边效果"
+	     —— 参考图按钮是一圈**明显可见**的半透白描边。从 1dp/12% 加到 1.5dp/35%:
+	     在磨砂的半透底上 35% 白正好是"看得见的一条亮边", 又不会像实线一样硬。 -->
+	<!-- 【第八十四轮·按用户要求】L9 内白描边(1.5dp/35% 白)删除: "所有主题不要加描边了,
+	     描边的样子也改成里面的样子" —— 白蒙版/光斑等本体层直接铺到内缩边界。 -->
+
+</layer-list>

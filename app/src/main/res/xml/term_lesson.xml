@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	【第三十七轮】学期课表小组件配置。
+
+	去掉 android:initialKeyguardLayout: 锁屏小部件自 Android 5.0 起已移除,
+	部分 ROM 的"小部件"面板会因为它整条跳过本组件(表现为"列表里找不到")。
+
+	【第三十七轮·按要求】"删除每日课表和学期课表的小组件缩放功能":
+	  · android:resizeMode 改成 **none** —— 长按不再出现缩放边框, 尺寸固定;
+	  · minResizeWidth / minResizeHeight 删除, 只在可缩放时才有意义。
+	尺寸由 minWidth(250dp) / minHeight(330dp) 与 targetCell 4x5 共同决定;
+	课表本身是 7 列等宽 + 按节数均分高度, 尺寸固定反而比被拖成畸形比例时更好看
+	(上一版被拖到很窄时, 课程列会被压到只剩几个像素)。
+-->
+<!--
+	【本轮】MIUI/澎湃OS 的小部件面板按 previewImage 生成缩略图, 个别版本对
+	"没有 previewImage 的 provider"整条不收录(面板"全部应用"里检索不到该应用)。
+	补上一张与小组件内容一致的静态预览, 旧版面板也能正常列出。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+	android:description="@string/text_term_lesson"
+	android:initialLayout="@layout/glance_default_loading_layout"
+	android:minWidth="250dp"
+	android:minHeight="330dp"
+	android:previewImage="@drawable/term_preview"
+	android:resizeMode="none"
+	android:targetCellWidth="4"
+	android:targetCellHeight="5"
+	android:updatePeriodMillis="86400000"
+	android:widgetCategory="home_screen" />

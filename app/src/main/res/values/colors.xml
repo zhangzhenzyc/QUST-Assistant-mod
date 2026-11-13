@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="colorPrimaryText">#212121</color>
+	<color name="colorSecondaryText">#757575</color>
+	<color name="onBackground">#1A1C1E</color>
+	<color name="surfaceVariant">#FFFFFF</color>
+
+	<!--
+		【本轮】桌面小组件专用配色(刻意**不**在 values-night 里另建一份)。
+
+		以前小组件背景直接用 @color/surfaceVariant: 白天是白的, 系统一开深色模式就变成
+		#212121 近乎纯黑, 压在彩色壁纸上就是一块黑砖, 课程色块(本身就是浅色)也显得脏。
+		这里固定成"半透明白卡片 + 深色字", 无论系统深浅色、无论壁纸颜色都能读清楚,
+		也省掉了"深色模式下文字跟着变浅、压在浅色课程块上看不见"的连锁问题。
+	-->
+	<color name="widget_surface">#F2FFFFFF</color>
+	<color name="widget_surface_stroke">#1A000000</color>
+	<!--
+		【第六十一轮·按要求"禁止浅灰"】三档非课程文字色**全部统一到 #1A1A1A**。
+
+		上一轮把 secondary 收到 #454B55、muted 收到 #6E7681, 用户的反馈仍然是
+		"小组件的灰色字体有点看不清" —— 原因是玻璃底的透光量本来就大(白蒙版只有 18%),
+		任何"中灰"压在花壁纸上都会掉到 3:1 以下的对比度。所以这次不再分档, 一律深黑;
+		层次感改由**字号/字重**去区分(周次大一号、时间小一号), 而不是靠颜色变浅。
+
+		用户还给了"可自己选非课程文字颜色"的开关(见 WidgetStyleStore.TEXT_PRESETS),
+		运行时颜色会覆盖这三个值; 这里保留三档只为兜底(资源被直接引用时也是深黑)。
+	-->
+	<color name="widget_text_primary">#1A1A1A</color>
+	<color name="widget_text_secondary">#1A1A1A</color>
+	<color name="widget_text_muted">#1A1A1A</color>
+</resources>

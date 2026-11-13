@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	饮水码的"码盘": 一块**纯白**圆角板, 条码画在它上面(第六十三轮新增, 第六十五轮加强)。
+
+	为什么用一块独立的板, 而不是让条码位图自带白底:
+	  条码位图是 `fitXY` 拉伸铺满的, 位图里的圆角会被拉成椭圆; 而这块板是矢量 shape,
+	  圆角在任何尺寸下都是正圆角。
+
+	为什么板要**留出四周**:
+	  上一版条码位图自带白底 + 铺满整个小组件, 于是卡片被一张白图盖死 ——
+	  用户换了主题, 饮水码看起来**一点没变**。现在板子外面留 16dp 的边(见布局里的
+	`widget_drink_plate_wrap`), 那圈边就是主题卡片本身: 深色玻璃是深色环、纯色是白环、
+	哑光卡片是冷白环 —— 换主题一眼就能看出来, 而条码仍然是白底黑条(扫码枪只认高对比)。
+
+	【第六十五轮】加了 1dp 的 6% 黑描边: 纯白码盘压在「纯色」「哑光」这两套浅色主题上时,
+	白+白之间没有分界, 码盘看着像被啃掉了一块; 这道边只要求"看得出白块到哪儿结束"。
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+	android:shape="rectangle">
+	<solid android:color="#FFFFFFFF" />
+	<corners android:radius="16dp" />
+	<stroke
+		android:width="1dp"
+		android:color="#10000000" />
+</shape>

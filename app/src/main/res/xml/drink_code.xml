@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	饮水码小组件配置
+
+	【第二十九轮】目标宽度由 3 格改为 4 格(用户要求"默认长度是 4 个应用宽度, 不要是 3 个")。
+	4 格 ≈ 4×70 - 30 = 250dp, 所以 minWidth 同步提到 250dp —— 目标格子和最小宽度必须一致,
+	否则启动器按 4 格给位置、我们却声明只要 3 格宽, 落地的卡片会偏窄、条码被压扁。
+
+	android:initialLayout 不能省: 缺了它, 系统在第一次 update 之前没有可画的东西,
+	部分 ROM 的小部件面板会直接跳过这个条目(表现为"列表里找不到")。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+	android:description="@string/text_drink_code"
+	android:initialLayout="@layout/widget_drink_code"
+	android:minWidth="250dp"
+	android:minHeight="50dp"
+	android:minResizeWidth="180dp"
+	android:minResizeHeight="50dp"
+	android:previewImage="@drawable/drink_preview"
+	android:resizeMode="horizontal|vertical"
+	android:targetCellWidth="4"
+	android:targetCellHeight="1"
+	android:updatePeriodMillis="0"
+	android:widgetCategory="home_screen" />

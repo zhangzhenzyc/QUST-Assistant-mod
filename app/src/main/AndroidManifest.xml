@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" >
+    
+    <uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!--
+        【本轮】把小组件钉到桌面要用到"创建桌面快捷方式"。这在标准 Android 上是普通权限
+        (安装即授予), 但小米/华为等 ROM 会额外给一个独立开关, 关着时 requestPinAppWidget
+        静默失败 —— 界面表现为"点了没反应", 桌面表现为"翻不到这个小组件"。
+        声明出来之后, 系统设置里才会出现这一项, 用户也才能把它打开。
+    -->
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <!--
+        【第五十九轮】「今日课表」上"还有 N 分钟下课"要每分钟跟着走, 靠的是自己排的精确闹钟
+        (见 WidgetTicker)。Android 12 起排精确闹钟需要这条权限:
+          · API 31/32: 属普通权限, 安装即授予;
+          · API 33+:  默认不授予, 且 targetSdk 34 的新装应用同样默认关闭 ——
+                      此时 canScheduleExactAlarms() 返回 false, 代码会自动退成
+                      setAndAllowWhileIdle(不精确, 可能晚几分钟, 但绝不会崩、也不会不刷)。
+        所以这条权限是"能更准", 不是"能不能用"。
+    -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!--
+        【第七十七轮·按要求"倒计时和北京时间差 30 秒"】
+
+        SCHEDULE_EXACT_ALARM 在 API 33+ **默认不授予**(targetSdk 34 的新装应用同样默认关闭),
+        实测日志: "心跳: 闹钟通道失败 SecurityException ... needs to hold
+        android.permission.SCHEDULE_EXACT_ALARM or android.permission.USE_EXACT_ALARM" ——
+        于是每分钟的刷新退成 setAndAllowWhileIdle, 被 MIUI 批量延迟 30~60 秒,
+        "32 分钟后下课"就比北京时间晚半分钟才变成 31。
+
+        USE_EXACT_ALARM 是**安装即授予**的(API 33+), 声明后 canScheduleExactAlarms() 恒为 true,
+        倒计时才会踩在整分上翻字。低版本系统忽略这一条, 仍走原来的 SCHEDULE_EXACT_ALARM。
+    -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!--
+        【第六十七轮·按要求"在清单预先声明全部所需权限"】开机自启。
+
+        用在哪: 「今日课表」的倒计时靠一条 AlarmManager 闹钟链(见 WidgetTicker) ——
+        响一次、重画一次、再排下一次。**重启会清空所有闹钟**, 而链条本身只在"上一次重画"时
+        才会续上, 于是重启后倒计时就再也不动了, 直到用户主动改一次主题/同步一次课表。
+        收到 BOOT_COMPLETED 后重画一次, 链条就自动接上了。
+        这条是普通权限, 安装即授予, 不需要运行时弹窗。
+    -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 【安全改造】移除与本应用无关的权限: 安装应用/读取电话状态/读取WiFi状态 -->
+    
+    <application
+        android:name=".App"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.QustHelper"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="31" >
+        
+        <activity
+            android:name=".ui.activity.MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustNothing" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    
+        <activity
+            android:name=".ui.activity.GuideActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustNothing" />
+        
+        <activity
+            android:name=".ui.activity.ComposeActivity"
+            android:exported="false" />
+        
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.qust.helper"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_apk" />
+        </provider>
+        
+        <!-- 桌面小部件 -->
+        <!-- 【第四十四轮】三个小组件都加了 MY_PACKAGE_REPLACED: 软件升级后系统会广播这个
+             action, GlanceAppWidgetReceiver 收到就重新渲染 —— 否则启动器一直显示旧版本
+             缓存的视图, 新代码(玻璃位图等)永远画不上去。 -->
+        <!-- 【第七十轮·七·结论】面板顺序**不受清单控制**。
+             实测两次: ① 把三个 receiver 的声明顺序反过来 -> 面板顺序不变;
+             ② 给名称加圈号 ①②③ -> 面板顺序**还是**不变(截图里仍是"今日/学期/饮水")。
+             两次都指向同一件事: MIUI 按**小部件名称**排序, 且排序时忽略开头的符号/数字。
+             所以圈号毫无作用(已删), 声明顺序怎么写都无所谓 —— 保持现在的"今日→学期→饮水"即可。
+             真要换位只能改名字本身, 属于产品决策, 不在代码里做。
+
+             【第七十轮·十八·第三条实验】用户猜"面板按代码/文件先后排序", 要求再把
+             「饮水码」挪到「今日课表」前面试一次。本轮就按这个顺序声明(饮水→今日→学期→空白),
+             装上后请看面板: 如果顺序还是"饮水/学期/今日", 那就 100% 证实与清单无关,
+             这条路到此为止(再试第四次没有意义)。 -->
+        <receiver
+            android:name=".ui.appwidget.DrinkCodeReceiver"
+            android:label="@string/widget_label_drink"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/drink_code" />
+        </receiver>
+
+        <receiver
+            android:name=".ui.appwidget.TermLessonReceiver"
+            android:label="@string/widget_label_term"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/term_lesson" />
+        </receiver>
+
+
+
+        <receiver
+            android:name=".ui.appwidget.DailyLessonReceiver"
+            android:label="@string/widget_label_day"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/daily_lesson" />
+        </receiver>
+
+        <!-- 【第五十九轮】「今日课表」的定时自刷新心跳(见 WidgetTicker)。
+
+             为什么需要: 小组件上的"4 分钟后下课"是渲染那一刻算出来的静态文字, 而 Glance
+             没有 View 那种 invalidate —— 想让它变, 只能再渲染一次, 而再渲染只能靠一次广播。
+             系统的 updatePeriodMillis 最短 30 分钟, 一节课才 45 分钟, 所以自己排闹钟。
+
+             【第六十七轮·按要求】"『N 分钟后下课』不与时间同步刷新" ——
+             光靠闹钟不够: 国产 ROM 会把"每分钟一次"的 RTC_WAKEUP 闹钟合并/延迟到好几分钟后
+             (尤其锁屏进深度省电之后), 于是倒计时看着像卡住。
+             这里再挂上 **USER_PRESENT(解锁)** —— 每次用户拿起手机解锁, 都顺手重画一次,
+             倒计时立刻回到正确值。这一条不额外耗电(本来就要亮的屏幕), 却覆盖了
+             "看一眼桌面上的倒计时"这个真实场景的绝大部分。
+             USER_PRESENT 需要 exported="true"(它是系统广播), 它本身是受保护广播,
+             第三方伪造不了; 而且这里收到后只做"重画自己小组件"这一件事。 -->
+        <receiver
+            android:name=".ui.appwidget.LessonTickReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.qust.helper.action.WIDGET_TICK" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <!-- 【第六十七轮】重启后把倒计时的闹钟链重新接上(见上面 RECEIVE_BOOT_COMPLETED 的说明) -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        
+    </application>
+
+</manifest>
